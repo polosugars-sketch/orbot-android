@@ -122,7 +122,6 @@ private fun <T> ContentResolver.getPref(key: String, converter: (Cursor, Int) ->
             null, null, null, null
         )
         if (cursor == null) {
-            Log.e(PreferenceProvider.TAG, "couldn't get a cursor when querying for pref $key")
             return@preferenceProviderCall null
         }
 
@@ -155,11 +154,6 @@ fun ContentResolver.getPrefInt(key: String, default: Int? = null): Int? {
 
 fun ContentResolver.getPrefLong(key: String, default: Long? = null): Long? {
     return getPref(key) { c, i -> c.getLongOrNull(i) } ?: default
-}
-
-@Suppress("unused")
-fun ContentResolver.getPrefFloat(key: String, default: Float? = null): Float? {
-    return getPref(key) { c, i -> c.getFloatOrNull(i) } ?: default
 }
 
 private fun ContentResolver.putPref(key: String, values: ContentValues) {
@@ -199,14 +193,6 @@ fun ContentResolver.putPref(key: String, value: Int) {
 fun ContentResolver.putPref(key: String, value: Long) {
     putPref(key, ContentValues().apply {
         put(PreferenceProvider.ROW_TYPE, Long::class.toString())
-        put(PreferenceProvider.ROW_VALUE, value)
-    })
-}
-
-@Suppress("unused")
-fun ContentResolver.putPref(key: String, value: Float) {
-    putPref(key, ContentValues().apply {
-        put(PreferenceProvider.ROW_TYPE, Float::class.toString())
         put(PreferenceProvider.ROW_VALUE, value)
     })
 }

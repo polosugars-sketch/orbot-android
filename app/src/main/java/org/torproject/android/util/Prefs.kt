@@ -20,17 +20,17 @@ object Prefs {
     private const val PREF_DETECT_ROOT = "pref_detect_root"
     private const val PREF_ENABLE_LOGGING = "pref_enable_logging"
     private const val PREF_START_ON_BOOT = "pref_start_boot"
-    private const val PREF_ALLOW_BACKGROUND_STARTS = "pref_allow_background_starts"
     const val PREF_OPEN_PROXY_ON_ALL_INTERFACES = "pref_open_proxy_on_all_interfaces"
     private const val PREF_USE_VPN = "pref_vpn"
     private const val PREF_LAST_SNOWFLAKE_QUALITY_CHECK = "pref_last_snowflake_quality_check"
     private const val PREF_EXIT_NODES = "pref_exit_nodes"
     private const val PREF_BE_A_SNOWFLAKE = "pref_be_a_snowflake"
     private const val PREF_SHOW_SNOWFLAKE_MSG = "pref_show_snowflake_proxy_msg"
-    private const val PREF_BE_A_SNOWFLAKE_LIMIT_WIFI = "pref_be_a_snowflake_limit_wifi"
-    private const val PREF_BE_A_SNOWFLAKE_LIMIT_CHARGING = "pref_be_a_snowflake_limit_charing"
+    const val PREF_BE_A_SNOWFLAKE_LIMIT_WIFI = "pref_be_a_snowflake_limit_wifi"
+    const val PREF_BE_A_SNOWFLAKE_LIMIT_CHARGING = "pref_be_a_snowflake_limit_charing"
     const val PREF_LAST_SNOWFLAKE_NAT_TYPE = "pref_snowflake_last_nat"
     const val PREF_LAST_SNOWFLAKE_ACTIVE = "pref_is_snowflake_running"
+    private const val PREF_SNOWFLAKE_UPNP_PORTS = "pref_snowflake_upnp_ports"
 
     private const val PREF_USE_SMART_CONNECT = "pref_use_smart_connect"
     private const val PREF_SMART_CONNECT_TIMEOUT = "pref_smart_connect_timeout"
@@ -144,7 +144,7 @@ object Prefs {
         set(value) = cr?.putPref(PREF_DEFAULT_LOCALE, value) ?: Unit
 
     fun detectRoot(): Boolean {
-        return cr?.getPrefBoolean(PREF_DETECT_ROOT) ?: true
+        return cr?.getPrefBoolean(PREF_DETECT_ROOT, true) ?: true
     }
 
     var beSnowflakeProxy: Boolean
@@ -176,10 +176,6 @@ object Prefs {
     @JvmStatic
     fun useDebugLogging(): Boolean {
         return cr?.getPrefBoolean(PREF_ENABLE_LOGGING) ?: false
-    }
-
-    fun allowBackgroundStarts(): Boolean {
-        return cr?.getPrefBoolean(PREF_ALLOW_BACKGROUND_STARTS, false) ?: false
     }
 
     fun openProxyOnAllInterfaces(context: Context): Boolean {
@@ -242,6 +238,11 @@ object Prefs {
     var snowflakeProxyRunning: Boolean
         get() = cr?.getPrefBoolean(PREF_LAST_SNOWFLAKE_ACTIVE) ?: false
         set(isRunning) = cr?.putPref(PREF_LAST_SNOWFLAKE_ACTIVE, isRunning) ?: Unit
+
+    // see https://github.com/guardianproject/orbot-android/issues/1795
+    var snowflakeUpnpPorts: String
+        get() = cr?.getPrefString(PREF_SNOWFLAKE_UPNP_PORTS) ?: ""
+        set(value) = cr?.putPref(PREF_SNOWFLAKE_UPNP_PORTS, value) ?: Unit
 
     val snowflakesServed: Int
         get() = cr?.getPrefInt(PREF_SNOWFLAKES_SERVED_COUNT) ?: 0
@@ -410,13 +411,13 @@ object Prefs {
         get() = cr?.getPrefBoolean(PREF_CONNECTION_PADDING) ?: false
 
     val reducedConnectionPadding: Boolean
-        get() = cr?.getPrefBoolean(PREF_REDUCED_CONNECTION_PADDING) ?: true
+        get() = cr?.getPrefBoolean(PREF_REDUCED_CONNECTION_PADDING, true) ?: true
 
     val circuitPadding: Boolean
-        get() = cr?.getPrefBoolean(PREF_CIRCUIT_PADDING) ?: true
+        get() = cr?.getPrefBoolean(PREF_CIRCUIT_PADDING, true) ?: true
 
     val reducedCircuitPadding: Boolean
-        get() = cr?.getPrefBoolean(PREF_REDUCED_CIRCUIT_PADDING) ?: true
+        get() = cr?.getPrefBoolean(PREF_REDUCED_CIRCUIT_PADDING, true) ?: true
 
     val torTransPort: String?
         get() = cr?.getPrefString(PREF_TRANSPORT)
@@ -455,7 +456,7 @@ object Prefs {
         get() = cr?.getPrefBoolean(PREF_ISOLATE_KEEP_ALIVE) ?: false
 
     val preferIpv6: Boolean
-        get() = cr?.getPrefBoolean(PREF_PREFER_IPV6) ?: true
+        get() = cr?.getPrefBoolean(PREF_PREFER_IPV6, true) ?: true
 
     val disableIpv4: Boolean
         get() = cr?.getPrefBoolean(PREF_DISABLE_IPV4) ?: false
@@ -473,11 +474,6 @@ object Prefs {
     var torDnsPortResolved: Int
         get() = cr?.getPrefInt(OrbotConstants.PREFS_DNS_PORT) ?: 0
         set(value) = cr?.putPref(OrbotConstants.PREFS_DNS_PORT, value) ?: Unit
-
-    @JvmStatic
-    fun isAppTorified(appId: String): Boolean {
-        return cr?.getPrefBoolean("$appId${OrbotConstants.APP_TOR_KEY}") ?: true
-    }
 
     @JvmStatic
     fun orbotServiceLogClear() {
